@@ -15,8 +15,11 @@ namespace Text2ImageSample
             var openai = new AzureOpenAIClient(
                 config.EndPoint, 
                 new DefaultAzureCredential());
-            var client = openai.GetChatClient(config.PromptModel);
-            _chatClient = client.AsIChatClient();
+            var client = 
+                openai.GetChatClient(config.PromptModel);
+            _chatClient = new ChatClientBuilder(client.AsIChatClient())
+                    .UseFunctionInvocation()
+                    .Build();
             _imageGenerator = openai.GetImageClient(config.ImageModel).AsIImageGenerator();
         }
 

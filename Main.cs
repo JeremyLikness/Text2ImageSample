@@ -54,10 +54,26 @@ namespace Text2ImageSample
 
         private async Task RunAsync(CancellationToken ct)
         {
-            foreach (var step in RunWorkflow(ct))
+            try
             {
-                _timer.NewTask();
-                await step;
+                foreach (var step in RunWorkflow(ct))
+                {
+                    _timer.NewTask();
+                    await step;
+                }
+            }
+            catch (OperationCanceledException)
+            {
+                _messages.Enqueue("Operation was cancelled.");
+            }
+            catch (Exception ex)
+            {
+                _messages.Enqueue($"Operation failed: {ex.Message}");
+            }
+            finally
+            {
+                _messages.Enqueue("Exiting...");
+                hostApplicationLifetime.StopApplication();
             }
         }
 
@@ -134,7 +150,6 @@ namespace Text2ImageSample
 
         private async Task GenerateSceneImageAsync(CancellationToken ct)
         {
-            var imagePrompt = new ImageGenerationRequest(Context.SceneDescription); 
             _messages.Enqueue("Generating image...");
             var imageResponse = await Context.ImageGeneratorFactory().GenerateImagesAsync(Context.SceneDescription, cancellationToken: ct);
             Context.Scene = imageResponse.Contents.OfType<DataContent>().First();
@@ -155,7 +170,7 @@ namespace Text2ImageSample
             var finalImageReponse = await Context.ImageGeneratorFactory()
                 .EditImagesAsync([Context.ModifiedCharacter!, Context.Scene!], 
                 "Render these images as black and white sketches.", cancellationToken: ct);
-            Context.FinalImages = finalImageReponse.Contents.OfType<DataContent>().ToArray();
+            Context.FinalImages = [.. finalImageReponse.Contents.OfType<DataContent>()];
         }
 
         public async Task RenderAsync(CancellationToken ct)

@@ -9,13 +9,13 @@ namespace Text2ImageSample
             config["AzureOpenAI:EndPoint"] 
             ?? throw new InvalidOperationException("Azure OpenAI EndPoint is not configured."));
 
-        private readonly string _promptModel = config["Test2Image:PromptModel"] 
+        private readonly string _promptModel = config["Text2Image:PromptModel"] 
             ?? "gpt-4o-mini";
 
-        private readonly string _imageModel = config["Test2Image:ImageModel"]
+        private readonly string _imageModel = config["Text2Image:ImageModel"]
             ?? "gpt-image-1";
 
-        private readonly string _pathToCharacterImage = config["Test2Image:PathToCharacterImage"]
+        private readonly string _pathToCharacterImage = config["Text2Image:PathToCharacterImage"]
             ?? "jeremy.jpg";
 
         public Uri EndPoint => _endPoint;
